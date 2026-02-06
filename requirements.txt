@@ -1,0 +1,7 @@
+streamlit
+yfinance
+pandas_ta
+pandas
+plotly
+requests
+pytz
