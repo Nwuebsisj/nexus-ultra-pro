@@ -25,12 +25,38 @@ tf = st.sidebar.selectbox("Timeframe", ["5m", "15m", "1h"], index=1)
 
 st.sidebar.markdown("---")
 st.sidebar.header("📲 Telegram Alerts")
-bot_token = st.sidebar.text_input("Bot Token", type="password", help="Get from @BotFather")
-chat_id = st.sidebar.text_input("Chat ID", help="Get from @userinfobot")
+
+# --- SMART LOGIC: SECRETS VS MANUAL ---
+if "BOT_TOKEN" in st.secrets and "CHAT_ID" in st.secrets:
+    bot_token = st.secrets["BOT_TOKEN"]
+    chat_id = str(st.secrets["CHAT_ID"])
+    st.sidebar.success("✅ Telegram Linked via Secrets")
+else:
+    # If secrets aren't set yet, show manual input boxes
+    bot_token = st.sidebar.text_input("Bot Token", type="password", help="Get from @BotFather")
+    chat_id = st.sidebar.text_input("Chat ID", help="Get from @userinfobot")
+    if not bot_token or not chat_id:
+        st.sidebar.info("💡 Tip: Set 'Secrets' in Streamlit settings to skip this step.")
+
 send_alerts = st.sidebar.toggle("Enable Mobile Alerts", value=True)
 
 st.sidebar.markdown("---")
 news_active = st.sidebar.toggle("High Impact News Today?", value=False)
+
+# --- NEW: TEST BUTTON ---
+if st.sidebar.button("🔔 Send Test Alert"):
+    if bot_token and chat_id:
+        # This calls your existing send_telegram function
+        test_msg = f"🔔 *Nexus Test Alert*\nAsset: {asset_name}\nStatus: Connection Successful! 🚀"
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        params = {"chat_id": chat_id, "text": test_msg, "parse_mode": "Markdown"}
+        res = requests.get(url, params=params)
+        if res.status_code == 200:
+            st.sidebar.success("Check your Telegram!")
+        else:
+            st.sidebar.error(f"Error: {res.status_code}")
+    else:
+        st.sidebar.error("Missing Token or Chat ID")
 
 # --- TELEGRAM FUNCTION ---
 def send_telegram(msg):
@@ -112,4 +138,5 @@ if not df.empty:
     fig.add_trace(go.Scatter(x=df.index, y=df['EMA20'], line=dict(color='yellow', width=1), name="EMA20"))
     fig.add_trace(go.Scatter(x=df.index, y=df['EMA50'], line=dict(color='cyan', width=2), name="EMA50"))
     fig.update_layout(template="plotly_dark", xaxis_rangeslider_visible=False, height=600)
+
     st.plotly_chart(fig, use_container_width=True)
