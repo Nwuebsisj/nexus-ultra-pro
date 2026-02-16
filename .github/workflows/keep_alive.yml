@@ -1,0 +1,24 @@
+name: Keep Nexus Awake
+on:
+  schedule:
+    # This tells GitHub to run this every 10 hours
+    - cron: '0 */10 * * *'
+  workflow_dispatch: # This adds a "Play" button so you can test it manually
+
+jobs:
+  ping_app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Run the wake script
+        run: python wake_app.py
