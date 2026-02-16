@@ -82,7 +82,7 @@ if not df.empty:
     is_weekend = pht.weekday() == 6 or (pht.weekday() == 5 and pht.hour >= 6)
     
     # Active Session: 3PM to 11PM PHT (London/NY overlap)
-    is_active_hours = 15 <= pht.hour <= 23 
+    is_active_hours = True
 
     # --- STATUS LOGIC ---
     if is_weekend:
@@ -163,3 +163,4 @@ if strength_data:
     for cur, val in sorted_strength.items():
         st.sidebar.markdown(f"**{cur}** ({val:+.2f}%)")
         st.sidebar.progress(max(0.0, min(1.0, (val + 2) / 4)))
+
